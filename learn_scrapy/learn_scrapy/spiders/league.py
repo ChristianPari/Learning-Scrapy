@@ -11,7 +11,6 @@ class LeagueSpider(scrapy.Spider):
       team_abrv = link.get()[7: 10].lower()
       url = self.start_urls[0][0: -7] + link.get()
       yield scrapy.Request(url, callback=self.parse_teams_roster_links, meta={'team_abrv': team_abrv})
-      # yield response.follow(link, callback=self.parse_teams_roster_links, meta={'team_abrv': team_abrv})
 
   def parse_teams_roster_links(self, response):
     team_table_rows = response.css('table.sortable').css('tbody').css('tr')
@@ -30,6 +29,9 @@ class LeagueSpider(scrapy.Spider):
         'name': player.css('td[data-stat="player"]').css('a::text').get(),
         'position': player.css('td[data-stat="pos"]::text').get()
       }
+      if player_data['number'].__eq__(''):
+        player_data['number'] = 'n/a'
+
       players_data.append(player_data)
     write_to_csv('C:/Users/Chris/Documents/csv-files/nba/' + team_abrv + '.csv', players_data)
 
