@@ -7,8 +7,8 @@ class LeagueSpider(scrapy.Spider):
 
   def parse(self, response, **kwargs):
     team_links = response.css('table[id="teams_active"]').css('tbody').css('tr.full_table').css('th').css('a::attr("href")')
-    team_abrv = response.css('table[id="teams_active"]').css('tbody').css('tr.full_table').css('th').css('a::attr("href")')[0].get()[7: 10].lower()
     for link in team_links:
+      team_abrv = link.get()[7: 10].lower()
       url = self.start_urls[0][0: -7] + link.get()
       yield scrapy.Request(url, callback=self.parse_teams_roster_links, meta={'team_abrv': team_abrv})
       # yield response.follow(link, callback=self.parse_teams_roster_links, meta={'team_abrv': team_abrv})
@@ -31,10 +31,10 @@ class LeagueSpider(scrapy.Spider):
         'position': player.css('td[data-stat="pos"]::text').get()
       }
       players_data.append(player_data)
-    write_to_csv(team_abrv + '.csv', players_data)
+    write_to_csv('C:/Users/Chris/Documents/csv-files/nba/' + team_abrv + '.csv', players_data)
 
 def write_to_csv(file_name, data):
-  with open(file_name, mode='w', newline='') as csv_file:
+  with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
     field_names = ['team', 'number', 'name', 'position']
     writer = csv.DictWriter(csv_file, fieldnames=field_names)
 
